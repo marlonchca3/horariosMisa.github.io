@@ -22,7 +22,11 @@
       </div>
 
       <div v-if="userLocation" class="location-info">
-        <p>Tu ubicación: <strong>{{ userLocation.latitude.toFixed(4) }}, {{ userLocation.longitude.toFixed(4) }}</strong></p>
+        <p>📍 Tu ubicación: <strong>{{ userLocation.latitude.toFixed(6) }}, {{ userLocation.longitude.toFixed(6) }}</strong></p>
+        <p class="location-details">
+          <span v-if="userLocation.accuracy">Precisión: ±{{ userLocation.accuracy.toFixed(0) }}m</span>
+          <span v-if="userLocation.altitude"> | Altitud: {{ userLocation.altitude.toFixed(1) }}m</span>
+        </p>
       </div>
     </section>
 
@@ -296,6 +300,17 @@ onMounted(() => {
   border-radius: 8px;
   color: #333;
   font-size: 0.95em;
+}
+
+.location-details {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: #666;
+}
+
+.location-details span {
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .nearest-church {

@@ -12,7 +12,9 @@ export function getCurrentPosition() {
       (position) => {
         resolve({
           latitude: position.coords.latitude,
-          longitude: position.coords.longitude
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          altitude: position.coords.altitude
         })
       },
       (error) => {
@@ -20,7 +22,7 @@ export function getCurrentPosition() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 10000,
         maximumAge: 0
       }
     )
