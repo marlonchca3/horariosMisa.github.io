@@ -70,5 +70,17 @@ export const churches = [
       { dia: "Sábado", horas: ["06:30", "17:00"] },
       { dia: "Domingo", horas: ["06:30", "08:30", "10:30", "12:30", "18:00"] }
     ]
+  },
+  {
+    id: 7,
+    name: "Iglesia Santa Ana",
+    location: "Jr. Lima 567, Callao",
+    latitude: -12.0756,
+    longitude: -77.1567,
+    horarios: [
+      { dia: "Lunes a Viernes", horas: ["07:30", "18:30"] },
+      { dia: "Sábado", horas: ["07:00", "17:30"] },
+      { dia: "Domingo", horas: ["07:00", "09:30", "11:00", "13:00", "18:30"] }
+    ]
   }
 ]
