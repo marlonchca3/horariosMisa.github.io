@@ -73,7 +73,7 @@ export const churches = [
   },
   {
     id: 7,
-    name: "Iglesia Santa Ana",
+    name: "Parroquia Santa Ana",
     location: "Jr. Lima 567, Callao",
     latitude: -12.0756,
     longitude: -77.1567,
