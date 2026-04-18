@@ -9,6 +9,7 @@
     "deploy": "npm run build && bash deploy.sh"
   },
   "dependencies": {
+    "cesium": "^1.140.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {

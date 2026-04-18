@@ -30,6 +30,13 @@
       </div>
     </section>
 
+    <!-- Map Section -->
+    <MapViewer 
+      :userLocation="userLocation"
+      :churches="churchesWithDistance"
+      :nearestChurch="nearestChurch"
+    />
+
     <!-- Nearest Church Section -->
     <section v-if="nearestChurch" class="nearest-church">
       <h2>⭐ Iglesia Más Cercana</h2>
@@ -116,6 +123,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { churches } from './data/churches'
 import { getCurrentPosition, findNearestChurch, getDayOfWeek, calculateDistance } from './utils/geolocation'
+import MapViewer from './components/MapViewer.vue'
 
 const userLocation = ref(null)
 const nearestChurch = ref(null)
