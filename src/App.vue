@@ -181,11 +181,17 @@ async function detectLocation() {
     nearestChurch.value = churchesWithDistance.value[0]
 
     // Notificar al usuario
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Iglesia Más Cercana', {
-        body: `${nearestChurch.value.name} está a ${(nearestChurch.value.distance * 1000).toFixed(0)}m`,
-        icon: '⛪'
-      })
+    try {
+      if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+        const registration = await navigator.serviceWorker.ready
+        registration.showNotification('Iglesia Más Cercana', {
+          body: `${nearestChurch.value.name} está a ${(nearestChurch.value.distance * 1000).toFixed(0)}m`,
+          icon: '⛪',
+          badge: '⛪'
+        })
+      }
+    } catch (notifErr) {
+      console.log('Notificación no disponible')
     }
   } catch (err) {
     if (err.code === 1) {
