@@ -1,6 +1,7 @@
 <template>
   <div class="map-container">
-    <div id="cesium-container" ref="cesiumContainer" style="width: 100%; height: 100%;"></div>
+    <div id="cesium-container" ref="cesiumContainer"></div>
+    <div v-if="mapError" class="map-error">⚠️ {{ mapError }}</div>
   </div>
 </template>
 
@@ -14,20 +15,26 @@ const props = defineProps({
 })
 
 const cesiumContainer = ref(null)
+const mapError = ref('')
 let viewer = null
+let Cesium = null
 
 const initializeCesium = async () => {
-  // Importar Cesium dinámicamente
-  const Cesium = await import('cesium')
-  
-  // Configurar Ion token
-  Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZGY4MDBjNi0xNzZhLTQzMzktODM0ZC01OTA4ZjFhMjA4OTUiLCJpZCI6MTc2MzMzLCJpYXQiOjE3MTI0MDczNzUsImV4cCI6MTc0Mzk0MzM3NSwic2NvcGVzIjpbImFzciIsImdjIl0sInNyYyI6ImVzcGsiLCJzbm9uIjoiU1BPIiwic3AiOlsibWFwcyIsIm9zbSJdLCJzYnMiOlsiZGVtbyIsIm1hcHMiXX0.wQk0a-0kiwPPfQrLUglSRKCJLhYTAMQdXNgfUKPcTSU'
-  
   try {
+    if (!window.CESIUM_BASE_URL && cesiumContainer.value) {
+      window.CESIUM_BASE_URL = 'https://cesium.com/downloads/unpackaged/'
+    }
+    
+    Cesium = window.Cesium || (await import('cesium')).default || await import('cesium')
+    
+    if (!Cesium) {
+      throw new Error('Cesium no se pudo cargar')
+    }
+
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZGY4MDBjNi0xNzZhLTQzMzktODM0ZC01OTA4ZjFhMjA4OTUiLCJpZCI6MTc2MzMzLCJpYXQiOjE3MTI0MDczNzUsImV4cCI6MTc0Mzk0MzM3NSwic2NvcGVzIjpbImFzciIsImdjIl0sInNyYyI6ImVzcGsiLCJzbm9uIjoiU1BPIiwic3AiOlsibWFwcyIsIm9zbSJdLCJzYnMiOlsiZGVtbyIsIm1hcHMiXX0.wQk0a-0kiwPPfQrLUglSRKCJLhYTAMQdXNgfUKPcTSU'
+    
     viewer = new Cesium.Viewer(cesiumContainer.value, {
-      terrain: Cesium.Terrain.fromWorldTerrain({
-        requestVertexNormals: true
-      }),
+      terrain: Cesium.Terrain.fromWorldTerrain(),
       timeline: false,
       animation: false,
       homeButton: false,
@@ -38,10 +45,8 @@ const initializeCesium = async () => {
       geocoder: false
     })
 
-    // Esconder créditos
     viewer.cesiumWidget.creditContainer.style.display = 'none'
     
-    // Ir a Callao
     const callaoLat = -12.0432
     const callaoLon = -77.0281
     
@@ -50,6 +55,7 @@ const initializeCesium = async () => {
       duration: 2
     })
   } catch (error) {
+    mapError.value = error.message
     console.error('Error inicializando Cesium:', error)
   }
 }
@@ -57,9 +63,6 @@ const initializeCesium = async () => {
 const addChurches = async () => {
   if (!viewer || !props.churches) return
   
-  const Cesium = await import('cesium')
-  
-  // Limpiar iglesias previas
   viewer.entities.removeAll()
   
   props.churches.forEach((church) => {
@@ -69,8 +72,7 @@ const addChurches = async () => {
         pixelSize: 12,
         color: Cesium.Color.BLUE,
         outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 2,
-        heightReference: Cesium.HeightReference.NONE
+        outlineWidth: 2
       },
       label: {
         text: church.name,
@@ -78,8 +80,7 @@ const addChurches = async () => {
         showBackground: true,
         backgroundColor: Cesium.Color.fromCssColorString('rgba(0, 0, 0, 0.8)'),
         backgroundPadding: new Cesium.Cartesian2(6, 3),
-        pixelOffset: new Cesium.Cartesian2(0, -25),
-        horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+        pixelOffset: new Cesium.Cartesian2(0, -25)
       }
     })
   })
@@ -88,16 +89,13 @@ const addChurches = async () => {
 const addUserLocation = async () => {
   if (!viewer || !props.userLocation) return
   
-  const Cesium = await import('cesium')
-  
   viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(props.userLocation.longitude, props.userLocation.latitude),
     point: {
       pixelSize: 18,
       color: Cesium.Color.RED,
       outlineColor: Cesium.Color.WHITE,
-      outlineWidth: 3,
-      heightReference: Cesium.HeightReference.NONE
+      outlineWidth: 3
     },
     label: {
       text: '📍 Tu Ubicación',
@@ -105,12 +103,10 @@ const addUserLocation = async () => {
       showBackground: true,
       backgroundColor: Cesium.Color.fromCssColorString('rgba(255, 0, 0, 0.8)'),
       backgroundPadding: new Cesium.Cartesian2(6, 3),
-      pixelOffset: new Cesium.Cartesian2(0, -30),
-      horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+      pixelOffset: new Cesium.Cartesian2(0, -30)
     }
   })
   
-  // Centrar en ubicación del usuario
   viewer.camera.flyTo({
     destination: Cesium.Cartesian3.fromDegrees(props.userLocation.longitude, props.userLocation.latitude, 15000),
     duration: 1.5
@@ -120,16 +116,13 @@ const addUserLocation = async () => {
 const addNearestChurch = async () => {
   if (!viewer || !props.nearestChurch) return
   
-  const Cesium = await import('cesium')
-  
   viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(props.nearestChurch.longitude, props.nearestChurch.latitude),
     point: {
       pixelSize: 22,
       color: Cesium.Color.YELLOW.withAlpha(0.9),
       outlineColor: Cesium.Color.ORANGE,
-      outlineWidth: 4,
-      heightReference: Cesium.HeightReference.NONE
+      outlineWidth: 4
     },
     label: {
       text: '⭐ ' + props.nearestChurch.name,
@@ -137,8 +130,7 @@ const addNearestChurch = async () => {
       showBackground: true,
       backgroundColor: Cesium.Color.fromCssColorString('rgba(255, 165, 0, 0.9)'),
       backgroundPadding: new Cesium.Cartesian2(8, 4),
-      pixelOffset: new Cesium.Cartesian2(0, -35),
-      horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+      pixelOffset: new Cesium.Cartesian2(0, -35)
     }
   })
 }
