@@ -63,6 +63,8 @@
       <div class="search-bar">
         <input 
           v-model="searchTerm"
+          id="search-iglesia"
+          name="search-iglesia"
           type="text"
           placeholder="🔍 Buscar iglesia..."
           class="search-input"
